@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16
+    container_name: cybertracker-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cybertracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - cybertracker_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: cybertracker-backend
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/cybertracker
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+  frontend:
+    build: ./frontend
+    container_name: cybertracker-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  cybertracker_data:
